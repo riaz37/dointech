@@ -37,7 +37,7 @@ export class TasksController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all tasks with optional filters' })
+  @ApiOperation({ summary: 'Get tasks for the current user with optional filters' })
   @ApiQuery({ name: 'status', required: false, enum: TaskStatus })
   @ApiQuery({ name: 'assignedUser', required: false, type: String })
   @ApiQuery({ name: 'search', required: false, type: String })
@@ -45,16 +45,19 @@ export class TasksController {
   @ApiQuery({ name: 'dueDateTo', required: false, type: String })
   @ApiResponse({ status: 200, description: 'Tasks retrieved successfully' })
   async findAll(
+    @CurrentUser() user: Partial<IUserResponse>,
     @Query('status') status?: TaskStatus,
     @Query('assignedUser') assignedUser?: string,
     @Query('search') search?: string,
     @Query('dueDateFrom') dueDateFrom?: string,
     @Query('dueDateTo') dueDateTo?: string,
   ): Promise<ITaskResponse[]> {
-    const filters: any = {};
+    const filters: any = {
+      // Only show tasks assigned to the current user
+      assignedUser: user._id,
+    };
 
     if (status) filters.status = status;
-    if (assignedUser) filters.assignedUser = assignedUser;
     if (search) filters.search = search;
     if (dueDateFrom || dueDateTo) {
       filters.dueDate = {};
@@ -66,19 +69,22 @@ export class TasksController {
   }
 
   @Get('stats')
-  @ApiOperation({ summary: 'Get task statistics' })
-  @ApiQuery({ name: 'userId', required: false, type: String })
+  @ApiOperation({ summary: 'Get task statistics for the current user' })
   @ApiResponse({ status: 200, description: 'Task statistics retrieved successfully' })
-  async getStats(@Query('userId') userId?: string) {
-    return this.tasksService.getTaskStats(userId);
+  async getStats(@CurrentUser() user: Partial<IUserResponse>) {
+    return this.tasksService.getTaskStats(user._id);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a task by ID' })
   @ApiResponse({ status: 200, description: 'Task retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Task not found' })
-  async findOne(@Param('id') id: string): Promise<ITaskResponse> {
-    return this.tasksService.findOne(id);
+  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
+  async findOne(
+    @Param('id') id: string,
+    @CurrentUser() user: Partial<IUserResponse>,
+  ): Promise<ITaskResponse> {
+    return this.tasksService.findOne(id, user._id);
   }
 
   @Patch(':id')

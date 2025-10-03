@@ -6,7 +6,7 @@ import { useTasks } from '@/hooks/useTasks'
 import { TaskCard } from '@/components/TaskCard'
 import { TaskForm } from '@/components/TaskForm'
 import { TaskFilters } from '@/components/TaskFilters'
-import { Button } from '@/components/ui/Button'
+import { ModernButton } from '@/components/ui/ModernButton'
 import { Plus, AlertCircle } from 'lucide-react'
 
 export function TaskList() {
@@ -48,6 +48,14 @@ export function TaskList() {
     }
   }
 
+  const handleSubmit = async (data: CreateTaskRequest | UpdateTaskRequest) => {
+    if (editingTask) {
+      await handleUpdateTask(data as UpdateTaskRequest)
+    } else {
+      await handleCreateTask(data as CreateTaskRequest)
+    }
+  }
+
   const handleDeleteTask = async (taskId: string) => {
     if (window.confirm('Are you sure you want to delete this task?')) {
       await deleteTask(taskId)
@@ -86,7 +94,7 @@ export function TaskList() {
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <p className="text-gray-600 mb-4">{error}</p>
-          <Button onClick={refreshTasks}>Try Again</Button>
+          <ModernButton onClick={refreshTasks}>Try Again</ModernButton>
         </div>
       </div>
     )
@@ -97,13 +105,15 @@ export function TaskList() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Tasks</h1>
-        <Button
+        <ModernButton
           onClick={() => setShowForm(true)}
           disabled={showForm || !!editingTask}
+          glow
+          gradient
         >
           <Plus className="w-4 h-4 mr-2" />
           New Task
-        </Button>
+        </ModernButton>
       </div>
 
       {/* Filters */}
@@ -117,7 +127,7 @@ export function TaskList() {
       {(showForm || editingTask) && (
         <TaskForm
           task={editingTask}
-          onSubmit={editingTask ? handleUpdateTask : handleCreateTask}
+          onSubmit={handleSubmit}
           onCancel={handleCancelForm}
           loading={formLoading}
         />

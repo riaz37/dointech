@@ -3,19 +3,12 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { Task, TaskStatus } from '@/types'
-import { AnimatedCard } from '@/components/ui/AnimatedCard'
-import { AnimatedButton } from '@/components/ui/AnimatedButton'
+import { ModernCard } from '@/components/ui/ModernCard'
+import { ModernButton } from '@/components/ui/ModernButton'
 import { formatDate, getTaskStatusColor, isOverdue, getDaysUntilDue, getInitials } from '@/lib/utils'
 import { Calendar, User, Edit3, Trash2, Clock, CheckCircle } from 'lucide-react'
-import { animations, transitions } from '@/lib/theme'
-
-interface TaskCardProps {
-  task: Task
-  onEdit: (task: Task) => void
-  onDelete: (taskId: string) => void
-  onStatusChange: (taskId: string, status: TaskStatus) => void
-  showActions?: boolean
-}
+import { transitions } from '@/lib/theme'
+import { TaskCardProps } from '@/types/components'
 
 export function TaskCard({ task, onEdit, onDelete, onStatusChange, showActions = true }: TaskCardProps) {
   const overdue = isOverdue(task.dueDate)
@@ -28,15 +21,17 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange, showActions =
   }
 
   return (
-    <AnimatedCard 
-      className={`${overdue && task.status !== TaskStatus.COMPLETED ? 'border-error-300 bg-error-50/30' : ''}`}
+    <ModernCard 
+      className={`${overdue && task.status !== TaskStatus.COMPLETED ? 'border-red-500/50 bg-red-500/10' : ''}`}
       gradient={task.status === TaskStatus.COMPLETED}
+      hover
+      glow
     >
       <div className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <motion.h3 
-              className="text-lg font-semibold text-secondary-900 mb-2 flex items-center gap-2"
+              className="text-lg font-semibold text-white mb-2 flex items-center gap-2"
               layoutId={`task-title-${task._id}`}
             >
               {task.status === TaskStatus.COMPLETED && (
@@ -50,7 +45,7 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange, showActions =
               )}
               {task.title}
             </motion.h3>
-            <div className="flex items-center gap-4 text-sm text-gray-500">
+            <div className="flex items-center gap-4 text-sm text-slate-300">
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getTaskStatusColor(task.status)}`}>
                 {task.status}
               </span>
@@ -61,7 +56,7 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange, showActions =
                 </span>
               )}
               {!overdue && task.status !== TaskStatus.COMPLETED && (
-                <span className="inline-flex items-center text-gray-500">
+                <span className="inline-flex items-center text-slate-300">
                   <Clock className="w-4 h-4 mr-1" />
                   {daysUntil === 0 ? 'Due today' : `${daysUntil} days left`}
                 </span>
@@ -75,24 +70,28 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange, showActions =
               animate={{ opacity: 1, x: 0 }}
               transition={{ ...transitions.default, delay: 0.2 }}
             >
-              <AnimatedButton
-                variant="outline"
+              <ModernButton
+                variant="secondary"
                 size="sm"
                 onClick={() => onEdit(task)}
                 icon={<Edit3 className="w-4 h-4" />}
-              />
-              <AnimatedButton
+              >
+                Edit
+              </ModernButton>
+              <ModernButton
                 variant="danger"
                 size="sm"
                 onClick={() => onDelete(task._id)}
                 icon={<Trash2 className="w-4 h-4" />}
-              />
+              >
+                Delete
+              </ModernButton>
             </motion.div>
           )}
         </div>
 
         <motion.p 
-          className="text-secondary-700 mb-4 line-clamp-3"
+          className="text-slate-300 mb-4 line-clamp-3"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ ...transitions.default, delay: 0.1 }}
@@ -101,7 +100,7 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange, showActions =
         </motion.p>
 
         <div className="space-y-3">
-          <div className="flex items-center gap-4 text-sm text-gray-600">
+          <div className="flex items-center gap-4 text-sm text-slate-300">
             <div className="flex items-center">
               <User className="w-4 h-4 mr-2" />
               <div className="flex items-center gap-2">
@@ -119,12 +118,12 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange, showActions =
 
           {showActions && (
             <motion.div 
-              className="flex items-center gap-2 pt-4 border-t border-secondary-200"
+              className="flex items-center gap-2 pt-4 border-t border-white/20"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ ...transitions.default, delay: 0.3 }}
             >
-              <span className="text-sm text-secondary-600 mr-2">Status:</span>
+              <span className="text-sm text-slate-300 mr-2">Status:</span>
               <div className="flex gap-1">
                 {Object.values(TaskStatus).map((status, index) => (
                   <motion.div
@@ -133,14 +132,14 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange, showActions =
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ ...transitions.default, delay: 0.4 + (index * 0.1) }}
                   >
-                    <AnimatedButton
+                    <ModernButton
                       variant={task.status === status ? 'primary' : 'ghost'}
                       size="sm"
                       onClick={() => handleStatusChange(status)}
                       className="text-xs"
                     >
                       {status}
-                    </AnimatedButton>
+                    </ModernButton>
                   </motion.div>
                 ))}
               </div>
@@ -148,6 +147,6 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange, showActions =
           )}
         </div>
       </div>
-    </AnimatedCard>
+    </ModernCard>
   )
 }

@@ -3,16 +3,11 @@
 import React from 'react'
 import { TaskStatus, TaskFilters as ITaskFilters } from '@/types'
 import { useUsers } from '@/hooks/useTasks'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
+import { ModernButton } from '@/components/ui/ModernButton'
+import { ModernInput } from '@/components/ui/ModernInput'
 import { Select } from '@/components/ui/Select'
 import { Search, Filter, X } from 'lucide-react'
-
-interface TaskFiltersProps {
-  filters: ITaskFilters
-  onFiltersChange: (filters: ITaskFilters) => void
-  onClearFilters: () => void
-}
+import { TaskFiltersProps } from '@/types/components'
 
 export function TaskFilters({ filters, onFiltersChange, onClearFilters }: TaskFiltersProps) {
   const { users } = useUsers()
@@ -48,26 +43,27 @@ export function TaskFilters({ filters, onFiltersChange, onClearFilters }: TaskFi
         <Filter className="w-5 h-5 text-gray-500" />
         <h3 className="text-lg font-medium text-gray-900">Filters</h3>
         {hasActiveFilters && (
-          <Button
-            variant="outline"
+          <ModernButton
+            variant="secondary"
             size="sm"
             onClick={onClearFilters}
             className="ml-auto"
           >
             <X className="w-4 h-4 mr-1" />
             Clear All
-          </Button>
+          </ModernButton>
         )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-          <Input
+          <ModernInput
             placeholder="Search tasks..."
             value={filters.search || ''}
             onChange={(e) => handleFilterChange('search', e.target.value)}
             className="pl-10"
+            glow
           />
         </div>
 
@@ -86,19 +82,21 @@ export function TaskFilters({ filters, onFiltersChange, onClearFilters }: TaskFi
         />
 
         <div className="flex gap-2">
-          <Input
+          <ModernInput
             type="date"
             placeholder="From date"
             value={filters.dueDateFrom ? filters.dueDateFrom.split('T')[0] : ''}
             onChange={(e) => handleFilterChange('dueDateFrom', e.target.value ? `${e.target.value}T00:00:00` : '')}
             className="flex-1"
+            glow
           />
-          <Input
+          <ModernInput
             type="date"
             placeholder="To date"
             value={filters.dueDateTo ? filters.dueDateTo.split('T')[0] : ''}
             onChange={(e) => handleFilterChange('dueDateTo', e.target.value ? `${e.target.value}T23:59:59` : '')}
             className="flex-1"
+            glow
           />
         </div>
       </div>

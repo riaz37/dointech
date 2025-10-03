@@ -14,12 +14,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased min-h-screen">
+    <html lang="en" className="dark">
+      <body className="antialiased min-h-screen bg-slate-900 text-white overflow-x-hidden">
         <AnimatedBackground />
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <div className="relative z-10">
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </div>
       </body>
     </html>
   );

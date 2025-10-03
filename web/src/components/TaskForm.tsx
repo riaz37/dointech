@@ -2,45 +2,36 @@
 
 import React, { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { Task, TaskStatus, CreateTaskRequest, UpdateTaskRequest } from '@/types'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { TaskStatus } from '@/types'
 import { useUsers } from '@/hooks/useTasks'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
+import { ModernButton } from '@/components/ui/ModernButton'
+import { ModernInput } from '@/components/ui/ModernInput'
 import { Select } from '@/components/ui/Select'
 import { formatDateInput } from '@/lib/utils'
-
-interface TaskFormProps {
-  task?: Task | null
-  onSubmit: (data: CreateTaskRequest | UpdateTaskRequest) => Promise<void>
-  onCancel: () => void
-  loading?: boolean
-}
-
-interface TaskFormData {
-  title: string
-  description: string
-  status: TaskStatus
-  assignedUser: string
-  dueDate: string
-}
+import { taskFormSchema, TaskFormInput } from '@/lib/validations/task'
+import { TaskFormProps } from '@/types/components'
 
 export function TaskForm({ task, onSubmit, onCancel, loading = false }: TaskFormProps) {
   const { users, loading: usersLoading } = useUsers()
   const [submitError, setSubmitError] = useState<string | null>(null)
+
+
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-    setValue,
-  } = useForm<TaskFormData>({
+  } = useForm<TaskFormInput>({
+    resolver: zodResolver(taskFormSchema),
+    mode: 'onChange',
     defaultValues: {
-      title: '',
-      description: '',
-      status: TaskStatus.PENDING,
-      assignedUser: '',
-      dueDate: '',
+      title: task?.title || '',
+      description: task?.description || '',
+      status: task?.status || TaskStatus.PENDING,
+      assignedUser: task?.assignedUser?._id || '',
+      dueDate: task?.dueDate ? formatDateInput(task.dueDate) : formatDateInput(new Date()),
     },
   })
 
@@ -53,23 +44,16 @@ export function TaskForm({ task, onSubmit, onCancel, loading = false }: TaskForm
         assignedUser: task.assignedUser._id,
         dueDate: formatDateInput(task.dueDate),
       })
-    } else {
-      reset({
-        title: '',
-        description: '',
-        status: TaskStatus.PENDING,
-        assignedUser: '',
-        dueDate: formatDateInput(new Date()),
-      })
     }
   }, [task, reset])
 
-  const onFormSubmit = async (data: TaskFormData) => {
+  const onFormSubmit = async (data: TaskFormInput) => {
     try {
       setSubmitError(null)
       await onSubmit(data)
-    } catch (error: any) {
-      setSubmitError(error.response?.data?.message || 'An error occurred')
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } }
+      setSubmitError(err.response?.data?.message || 'An error occurred')
     }
   }
 
@@ -80,41 +64,38 @@ export function TaskForm({ task, onSubmit, onCancel, loading = false }: TaskForm
 
   const userOptions = users.map(user => ({
     value: user._id,
-    label: `${user.firstName} ${user.lastName} (${user.username})`,
+    label: user.username || 'No Username',
   }))
 
   return (
-    <div className="bg-white p-6 rounded-lg border border-gray-200">
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">
-        {task ? 'Edit Task' : 'Create New Task'}
-      </h2>
-
+    <div className="space-y-6">
       {submitError && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-red-600 text-sm">{submitError}</p>
+        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg backdrop-blur-sm">
+          <p className="text-red-400 text-sm">{submitError}</p>
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
-        <Input
+      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
+        <ModernInput
           label="Title"
           {...register('title', { required: 'Title is required' })}
           error={errors.title?.message}
           placeholder="Enter task title"
+          glow
         />
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-300 mb-2">
             Description
           </label>
           <textarea
             {...register('description', { required: 'Description is required' })}
-            className="flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-slate-400 backdrop-blur-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
             rows={3}
             placeholder="Enter task description"
           />
           {errors.description && (
-            <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
+            <p className="mt-1 text-sm text-red-400">{errors.description.message}</p>
           )}
         </div>
 
@@ -135,29 +116,35 @@ export function TaskForm({ task, onSubmit, onCancel, loading = false }: TaskForm
           />
         </div>
 
-        <Input
+        <ModernInput
           label="Due Date"
           type="datetime-local"
           {...register('dueDate', { required: 'Due date is required' })}
           error={errors.dueDate?.message}
+          glow
         />
 
-        <div className="flex items-center gap-3 pt-4">
-          <Button
+        <div className="flex items-center gap-4 pt-6">
+          <ModernButton
             type="submit"
             loading={loading}
             disabled={loading}
+            glow
+            gradient
+            size="lg"
           >
             {task ? 'Update Task' : 'Create Task'}
-          </Button>
-          <Button
+          </ModernButton>
+          <ModernButton
             type="button"
-            variant="outline"
+            variant="secondary"
             onClick={onCancel}
             disabled={loading}
+            glow
+            size="lg"
           >
             Cancel
-          </Button>
+          </ModernButton>
         </div>
       </form>
     </div>

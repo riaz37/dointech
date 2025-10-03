@@ -5,9 +5,9 @@ import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '@/hooks/useAuth'
 import { LoginRequest } from '@/types'
-import { AnimatedButton } from '@/components/ui/AnimatedButton'
-import { AnimatedInput } from '@/components/ui/AnimatedInput'
-import { AnimatedCard } from '@/components/ui/AnimatedCard'
+import { ModernButton } from '@/components/ui/ModernButton'
+import { ModernInput } from '@/components/ui/ModernInput'
+import { ModernCard } from '@/components/ui/ModernCard'
 import { PageTransition } from '@/components/ui/PageTransition'
 import { User, Lock, LogIn } from 'lucide-react'
 import { animations, transitions } from '@/lib/theme'
@@ -28,8 +28,9 @@ export function LoginForm() {
       setLoading(true)
       setError(null)
       await login(data)
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed')
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } }
+      setError(error.response?.data?.message || 'Login failed')
     } finally {
       setLoading(false)
     }
@@ -37,7 +38,7 @@ export function LoginForm() {
 
   return (
     <PageTransition>
-      <AnimatedCard className="w-full max-w-md mx-auto" gradient>
+      <ModernCard className="w-full max-w-md mx-auto" gradient glow>
         <div className="p-8">
           {/* Header */}
           <motion.div 
@@ -53,8 +54,8 @@ export function LoginForm() {
             >
               <LogIn className="w-8 h-8 text-white" />
             </motion.div>
-            <h1 className="text-2xl font-bold text-secondary-900">Welcome Back</h1>
-            <p className="text-secondary-600 mt-2">Sign in to your account</p>
+            <h1 className="text-2xl font-bold text-white">Welcome Back</h1>
+            <p className="text-slate-300 mt-2">Sign in to your account</p>
           </motion.div>
 
           {/* Error Message */}
@@ -90,50 +91,54 @@ export function LoginForm() {
             animate="visible"
           >
             <motion.div variants={animations.itemVariants}>
-              <AnimatedInput
+              <ModernInput
                 label="Username"
                 icon={<User className="w-4 h-4" />}
                 {...register('username', { required: 'Username is required' })}
                 error={errors.username?.message}
                 placeholder="Enter your username"
+                glow
               />
             </motion.div>
 
             <motion.div variants={animations.itemVariants}>
-              <AnimatedInput
+              <ModernInput
                 label="Password"
                 type="password"
                 icon={<Lock className="w-4 h-4" />}
                 {...register('password', { required: 'Password is required' })}
                 error={errors.password?.message}
                 placeholder="Enter your password"
+                glow
               />
             </motion.div>
 
             <motion.div variants={animations.itemVariants}>
-              <AnimatedButton
+              <ModernButton
                 type="submit"
                 className="w-full"
                 loading={loading}
                 disabled={loading}
                 icon={<LogIn className="w-4 h-4" />}
+                glow
+                gradient
               >
                 {loading ? 'Signing In...' : 'Sign In'}
-              </AnimatedButton>
+              </ModernButton>
             </motion.div>
           </motion.form>
 
           {/* Footer */}
           <motion.p 
-            className="mt-6 text-center text-sm text-secondary-600"
+            className="mt-6 text-center text-sm text-slate-300"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ ...transitions.default, delay: 0.5 }}
           >
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <motion.a 
               href="/register" 
-              className="text-primary-600 font-medium hover:text-primary-700"
+              className="text-blue-400 font-medium hover:text-blue-300 transition-colors cursor-pointer"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -141,7 +146,7 @@ export function LoginForm() {
             </motion.a>
           </motion.p>
         </div>
-      </AnimatedCard>
+      </ModernCard>
     </PageTransition>
   )
 }

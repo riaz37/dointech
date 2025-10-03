@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { Layout } from '@/components/Layout'
+import { ModernLayout } from '@/components/ModernLayout'
 import { TaskList } from '@/components/TaskList'
 
 export default function TasksPage() {
@@ -18,8 +18,8 @@ export default function TasksPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
       </div>
     )
   }
@@ -29,8 +29,8 @@ export default function TasksPage() {
   }
 
   return (
-    <Layout currentPage="tasks">
+    <ModernLayout>
       <TaskList />
-    </Layout>
+    </ModernLayout>
   )
 }

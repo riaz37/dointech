@@ -1,12 +1,8 @@
 'use client'
 
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { animations, transitions } from '@/lib/theme'
-
-interface PageTransitionProps {
-  children: React.ReactNode
-  className?: string
-}
+import { PageTransitionProps } from '@/types/components'
 
 export function PageTransition({ children, className }: PageTransitionProps) {
   return (

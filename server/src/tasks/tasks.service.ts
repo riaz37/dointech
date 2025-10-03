@@ -70,9 +70,9 @@ export class TasksService {
     return tasks.map(task => this.transformTaskResponse(task));
   }
 
-  async findOne(id: string): Promise<ITaskResponse> {
+  async findOne(id: string, userId: string): Promise<ITaskResponse> {
     const task = await this.taskModel
-      .findById(id)
+      .findOne({ _id: id, assignedUser: userId })
       .populate('assignedUser', 'username firstName lastName')
       .populate('createdBy', 'username firstName lastName');
 

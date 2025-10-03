@@ -4,9 +4,9 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '@/hooks/useAuth'
 import { RegisterRequest } from '@/types'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
+import { ModernButton } from '@/components/ui/ModernButton'
+import { ModernInput } from '@/components/ui/ModernInput'
+import { ModernCard, CardContent, CardHeader, CardTitle } from '@/components/ui/ModernCard'
 
 export function RegisterForm() {
   const { register: registerUser } = useAuth()
@@ -18,20 +18,18 @@ export function RegisterForm() {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm<RegisterRequest & { confirmPassword: string }>()
-
-  const password = watch('password')
 
   const onSubmit = async (data: RegisterRequest & { confirmPassword: string }) => {
     try {
       setLoading(true)
       setError(null)
-      const { confirmPassword, ...registerData } = data
+      const { confirmPassword: _, ...registerData } = data
       await registerUser(registerData)
       setSuccess(true)
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed')
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } }
+      setError(error.response?.data?.message || 'Registration failed')
     } finally {
       setLoading(false)
     }
@@ -39,26 +37,26 @@ export function RegisterForm() {
 
   if (success) {
     return (
-      <Card className="w-full max-w-md mx-auto">
+      <ModernCard className="w-full max-w-md mx-auto" glow gradient>
         <CardHeader>
-          <CardTitle className="text-2xl text-center text-green-600">Registration Successful!</CardTitle>
+          <CardTitle className="text-2xl text-center text-green-400">Registration Successful!</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-center text-gray-600 mb-4">
+          <p className="text-center text-slate-300 mb-4">
             Your account has been created successfully. You can now sign in.
           </p>
-          <a href="/login" className="w-full">
-            <Button className="w-full">Go to Sign In</Button>
+          <a href="/login" className="w-full cursor-pointer">
+            <ModernButton className="w-full" glow gradient>Go to Sign In</ModernButton>
           </a>
         </CardContent>
-      </Card>
+      </ModernCard>
     )
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <ModernCard className="w-full max-w-md mx-auto" glow gradient>
       <CardHeader>
-        <CardTitle className="text-2xl text-center">Create Account</CardTitle>
+        <CardTitle className="text-2xl text-center text-white">Create Account</CardTitle>
       </CardHeader>
       <CardContent>
         {error && (
@@ -69,22 +67,24 @@ export function RegisterForm() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <Input
+            <ModernInput
               label="First Name"
               {...register('firstName', { required: 'First name is required' })}
               error={errors.firstName?.message}
               placeholder="John"
+              glow
             />
 
-            <Input
+            <ModernInput
               label="Last Name"
               {...register('lastName', { required: 'Last name is required' })}
               error={errors.lastName?.message}
               placeholder="Doe"
+              glow
             />
           </div>
 
-          <Input
+          <ModernInput
             label="Email"
             type="email"
             {...register('email', {
@@ -96,16 +96,18 @@ export function RegisterForm() {
             })}
             error={errors.email?.message}
             placeholder="john.doe@example.com"
+            glow
           />
 
-          <Input
+          <ModernInput
             label="Username"
             {...register('username', { required: 'Username is required' })}
             error={errors.username?.message}
             placeholder="johndoe"
+            glow
           />
 
-          <Input
+          <ModernInput
             label="Password"
             type="password"
             {...register('password', {
@@ -117,36 +119,40 @@ export function RegisterForm() {
             })}
             error={errors.password?.message}
             placeholder="Enter your password"
+            glow
           />
 
-          <Input
+          <ModernInput
             label="Confirm Password"
             type="password"
             {...register('confirmPassword', {
               required: 'Please confirm your password',
-              validate: (value) => value === password || 'Passwords do not match',
+              validate: (value, formValues) => value === formValues.password || 'Passwords do not match',
             })}
             error={errors.confirmPassword?.message}
             placeholder="Confirm your password"
+            glow
           />
 
-          <Button
+          <ModernButton
             type="submit"
             className="w-full"
             loading={loading}
             disabled={loading}
+            glow
+            gradient
           >
             Create Account
-          </Button>
+          </ModernButton>
         </form>
 
-        <p className="mt-4 text-center text-sm text-gray-600">
+        <p className="mt-4 text-center text-sm text-slate-300">
           Already have an account?{' '}
-          <a href="/login" className="text-blue-600 hover:underline">
+          <a href="/login" className="text-blue-400 hover:text-blue-300 transition-colors cursor-pointer">
             Sign in
           </a>
         </p>
       </CardContent>
-    </Card>
+    </ModernCard>
   )
 }

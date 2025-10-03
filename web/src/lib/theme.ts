@@ -154,7 +154,7 @@ export const animations = {
       y: 0,
       transition: {
         duration: 0.5,
-        ease: 'easeOut',
+        ease: "easeOut" as const,
       },
     },
   },
@@ -172,7 +172,7 @@ export const animations = {
       boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
       transition: {
         duration: 0.2,
-        ease: 'easeOut',
+        ease: "easeOut" as const,
       },
     },
     tap: {
@@ -189,7 +189,7 @@ export const animations = {
       scale: 1.05,
       transition: {
         duration: 0.2,
-        ease: 'easeOut',
+        ease: "easeOut" as const,
       },
     },
     tap: {
@@ -208,7 +208,7 @@ export const animations = {
       scale: 1,
       transition: {
         duration: 0.3,
-        ease: 'easeOut',
+        ease: "easeOut" as const,
       },
     },
     exit: {
@@ -227,7 +227,7 @@ export const animations = {
       transition: {
         duration: 1,
         repeat: Infinity,
-        ease: 'linear',
+        ease: "linear" as const,
       },
     },
   },
