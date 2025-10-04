@@ -1,0 +1,44 @@
+services:
+  # Backend API Service
+  - type: web
+    name: task-management-api
+    env: node
+    plan: starter
+    buildCommand: cd server && npm ci && npm run build
+    startCommand: cd server && npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        fromDatabase:
+          name: task-management-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: 10000
+    healthCheckPath: /api/health
+    autoDeploy: true
+
+  # Frontend Web Service
+  - type: web
+    name: task-management-web
+    env: static
+    buildCommand: cd web && npm ci && npm run build
+    staticPublishPath: ./web/out
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: task-management-api
+          property: host
+          format: https://{{host}}/api
+    autoDeploy: true
+
+databases:
+  - name: task-management-db
+    plan: starter
+    databaseName: taskmanager
+    user: taskmanager

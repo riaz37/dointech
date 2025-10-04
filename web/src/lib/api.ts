@@ -46,6 +46,9 @@ class ApiClient {
         return Promise.reject(error)
       }
     )
+
+    // Warm up the backend on initialization
+    this.warmUpBackend()
   }
 
   private getToken(): string | null {
@@ -65,6 +68,27 @@ class ApiClient {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
+    }
+  }
+
+  // Health check method
+  async checkHealth(): Promise<{ status: string; timestamp: string }> {
+    const response = await this.client.get<{ status: string; timestamp: string }>('/health')
+    return response.data
+  }
+
+  // Warm up backend to prevent cold start delays
+  private async warmUpBackend(): Promise<void> {
+    try {
+      // Only warm up in production
+      if (process.env.NODE_ENV === 'production') {
+        console.log('🔥 Warming up backend...')
+        await this.checkHealth()
+        console.log('✅ Backend warmed up successfully')
+      }
+    } catch (error) {
+      console.warn('⚠️ Backend warm-up failed:', error)
+      // Don't throw error, just log it
     }
   }
 
