@@ -1,14 +1,16 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { useTaskStats, useTasks } from '@/hooks/useTasks'
 import { useAuth } from '@/hooks/useAuth'
-import { TaskStatus, Task, CreateTaskRequest, UpdateTaskRequest } from '@/types'
+import { TaskStatus, Task, CreateTaskRequest, UpdateTaskRequest, TaskFilters } from '@/types'
 import { ModernCard, CardContent, CardHeader, CardTitle } from '@/components/ui/ModernCard'
 import { ModernButton } from '@/components/ui/ModernButton'
+import { ModernInput } from '@/components/ui/ModernInput'
+import { Select } from '@/components/ui/Select'
 import { TaskForm } from '@/components/TaskForm'
-import { CheckCircle, Clock, AlertCircle, BarChart3, Plus, X } from 'lucide-react'
+import { CheckCircle, Clock, AlertCircle, BarChart3, Plus, X, Filter } from 'lucide-react'
 
 export function Dashboard() {
   const { user } = useAuth()
@@ -16,6 +18,13 @@ export function Dashboard() {
   const { tasks, createTask, updateTask, deleteTask } = useTasks()
   const [showTaskForm, setShowTaskForm] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
+  const [showFilters, setShowFilters] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filters, setFilters] = useState<TaskFilters>({
+    status: undefined,
+    dueDateFrom: '',
+    dueDateTo: '',
+  })
 
   const handleCreateTask = async (taskData: CreateTaskRequest) => {
     try {
@@ -55,6 +64,62 @@ export function Dashboard() {
     setShowTaskForm(false)
     setEditingTask(null)
   }
+
+  // Filter tasks based on current filters and search
+  const filteredTasks = useMemo(() => {
+    if (!tasks) return []
+
+    return tasks.filter(task => {
+      // Search filter
+      if (searchTerm) {
+        const search = searchTerm.toLowerCase()
+        const matchesSearch = 
+          task.title.toLowerCase().includes(search) ||
+          task.description.toLowerCase().includes(search) ||
+          task.assignedUser.firstName.toLowerCase().includes(search) ||
+          task.assignedUser.lastName.toLowerCase().includes(search)
+        if (!matchesSearch) return false
+      }
+
+      // Status filter
+      if (filters.status && task.status !== filters.status) {
+        return false
+      }
+
+      // Date range filters
+      if (filters.dueDateFrom) {
+        const taskDate = new Date(task.dueDate)
+        const fromDate = new Date(filters.dueDateFrom)
+        if (taskDate < fromDate) return false
+      }
+
+      if (filters.dueDateTo) {
+        const taskDate = new Date(task.dueDate)
+        const toDate = new Date(filters.dueDateTo)
+        if (taskDate > toDate) return false
+      }
+
+      return true
+    })
+  }, [tasks, searchTerm, filters])
+
+  const handleFilterChange = (key: keyof TaskFilters, value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value || undefined,
+    }))
+  }
+
+  const clearFilters = () => {
+    setSearchTerm('')
+    setFilters({
+      status: undefined,
+      dueDateFrom: '',
+      dueDateTo: '',
+    })
+  }
+
+  const hasActiveFilters = searchTerm || Object.values(filters).some(value => value !== undefined && value !== '')
 
   if (loading) {
     return (
@@ -183,21 +248,117 @@ export function Dashboard() {
         animate={{ opacity: 1, y: 0 }}
         className="space-y-4"
       >
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-white">Your Tasks</h2>
-            <ModernButton
-              onClick={() => setShowTaskForm(true)}
-              icon={<Plus className="w-4 h-4" />}
-              size="sm"
-              glow
-              gradient
-            >
-              Add Task
-            </ModernButton>
-          </div>
           <div className="space-y-4">
-            {tasks && tasks.length > 0 ? (
-              tasks.slice(0, 5).map((task) => (
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-white">Your Tasks</h2>
+            </div>
+
+            {/* Always Visible Search Bar */}
+            <div className="flex gap-4 items-center">
+              <div className="flex-1 max-w-md">
+                <ModernInput
+                  placeholder="Search tasks..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  glow
+                />
+              </div>
+              <div className="flex gap-2">
+                <ModernButton
+                  onClick={() => setShowFilters(!showFilters)}
+                  icon={<Filter className="w-4 h-4" />}
+                  size="sm"
+                  variant="secondary"
+                  glow
+                >
+                  {showFilters ? 'Hide Filters' : 'Filters'}
+                </ModernButton>
+                <ModernButton
+                  onClick={() => setShowTaskForm(true)}
+                  icon={<Plus className="w-4 h-4" />}
+                  size="sm"
+                  glow
+                  gradient
+                >
+                  Add Task
+                </ModernButton>
+              </div>
+            </div>
+          </div>
+
+          {/* Filter Options */}
+          {showFilters && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="bg-slate-800/50 backdrop-blur-sm rounded-lg p-4 border border-white/10"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Status Filter */}
+                <Select
+                  label="Status"
+                  options={[
+                    { value: '', label: 'All Statuses' },
+                    ...Object.values(TaskStatus).map(status => ({
+                      value: status,
+                      label: status,
+                    })),
+                  ]}
+                  value={filters.status || ''}
+                  onChange={(e) => handleFilterChange('status', e.target.value)}
+                />
+
+                {/* Due Date From */}
+                <ModernInput
+                  label="From Date"
+                  type="date"
+                  value={filters.dueDateFrom || ''}
+                  onChange={(e) => handleFilterChange('dueDateFrom', e.target.value)}
+                  glow
+                />
+
+                {/* Due Date To */}
+                <ModernInput
+                  label="To Date"
+                  type="date"
+                  value={filters.dueDateTo || ''}
+                  onChange={(e) => handleFilterChange('dueDateTo', e.target.value)}
+                  glow
+                />
+              </div>
+
+              {/* Clear Filters Button */}
+              {hasActiveFilters && (
+                <div className="mt-4 flex justify-end">
+                  <ModernButton
+                    onClick={clearFilters}
+                    variant="ghost"
+                    size="sm"
+                    icon={<X className="w-4 h-4" />}
+                  >
+                    Clear All Filters
+                  </ModernButton>
+                </div>
+              )}
+            </motion.div>
+          )}
+          {/* Task Count */}
+          <div className="flex items-center justify-between text-sm text-gray-300">
+            <span>
+              Showing {filteredTasks.length} of {tasks?.length || 0} tasks
+              {(searchTerm || Object.values(filters).some(v => v)) && ' (filtered)'}
+            </span>
+            {(searchTerm || Object.values(filters).some(v => v)) && (
+              <span className="text-blue-400">
+                {filteredTasks.length === 0 ? 'No tasks match your search/filters' : 'Filtered results'}
+              </span>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            {filteredTasks && filteredTasks.length > 0 ? (
+              filteredTasks.slice(0, 10).map((task) => (
                 <ModernCard key={task._id} hover glow>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
@@ -243,13 +404,26 @@ export function Dashboard() {
             ) : (
               <div className="text-center py-8">
                 <AlertCircle className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                <p className="text-slate-300">No tasks found. Create your first task!</p>
+                <p className="text-slate-300">
+                  {(searchTerm || Object.values(filters).some(v => v))
+                    ? 'No tasks match your search/filters' 
+                    : 'No tasks found. Create your first task!'
+                  }
+                </p>
+                {(searchTerm || Object.values(filters).some(v => v)) && (
+                  <button 
+                    onClick={clearFilters}
+                    className="text-blue-400 hover:text-blue-300 mt-2 cursor-pointer"
+                  >
+                    Clear search & filters
+                  </button>
+                )}
               </div>
             )}
-            {tasks && tasks.length > 5 && (
+            {filteredTasks && filteredTasks.length > 10 && (
               <div className="text-center">
                 <p className="text-sm text-slate-400">
-                  Showing 5 of {tasks.length} tasks. 
+                  Showing 10 of {filteredTasks.length} filtered tasks. 
                   <button 
                     onClick={() => window.location.href = '/tasks'}
                     className="text-blue-400 hover:text-blue-300 ml-1 cursor-pointer"

@@ -1,7 +1,10 @@
 import React from 'react'
 
 // ModernInput component interfaces
-export interface ModernInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface ModernInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 
+  'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration' |
+  'onDrag' | 'onDragEnd' | 'onDragStart' | 'onDragEnter' | 'onDragExit' | 'onDragLeave' | 'onDragOver' | 'onDrop'
+> {
   label?: string
   error?: string
   icon?: React.ReactNode
@@ -18,7 +21,10 @@ export interface ModernInputProps extends React.InputHTMLAttributes<HTMLInputEle
 }
 
 // ModernButton component interfaces
-export interface ModernButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ModernButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 
+  'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration' |
+  'onDrag' | 'onDragEnd' | 'onDragStart' | 'onDragEnter' | 'onDragExit' | 'onDragLeave' | 'onDragOver' | 'onDrop'
+> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger'
   size?: 'sm' | 'md' | 'lg'
   loading?: boolean
@@ -42,7 +48,10 @@ export interface ModernCardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 // Select component interfaces
-export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+export interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 
+  'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration' |
+  'onDrag' | 'onDragEnd' | 'onDragStart' | 'onDragEnter' | 'onDragExit' | 'onDragLeave' | 'onDragOver' | 'onDrop'
+> {
   label?: string
   error?: string
   options: Array<{ value: string; label: string }>

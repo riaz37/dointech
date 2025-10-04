@@ -15,10 +15,7 @@ export const createTaskSchema = z.object({
     .min(1, 'Description is required')
     .trim(),
   
-  status: z.nativeEnum(TaskStatus, {
-    required_error: 'Status is required',
-    invalid_type_error: 'Invalid status value',
-  }),
+  status: z.nativeEnum(TaskStatus),
   
   assignedUser: z
     .string()
@@ -49,9 +46,7 @@ export const updateTaskSchema = z.object({
     .trim()
     .optional(),
   
-  status: z.nativeEnum(TaskStatus, {
-    invalid_type_error: 'Invalid status value',
-  }).optional(),
+  status: z.nativeEnum(TaskStatus).optional(),
   
   assignedUser: z
     .string()
@@ -86,10 +81,7 @@ export const taskFormSchema = z.object({
     .max(1000, 'Description must be less than 1000 characters')
     .trim(),
   
-  status: z.nativeEnum(TaskStatus, {
-    required_error: 'Status is required',
-    invalid_type_error: 'Invalid status value',
-  }),
+  status: z.nativeEnum(TaskStatus),
   
   assignedUser: z
     .string()

@@ -24,7 +24,8 @@ export function RegisterForm() {
     try {
       setLoading(true)
       setError(null)
-      const { confirmPassword: _, ...registerData } = data
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { confirmPassword, ...registerData } = data
       await registerUser(registerData)
       setSuccess(true)
     } catch (err: unknown) {

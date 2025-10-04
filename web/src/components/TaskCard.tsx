@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Task, TaskStatus } from '@/types'
+import { TaskStatus } from '@/types'
 import { ModernCard } from '@/components/ui/ModernCard'
 import { ModernButton } from '@/components/ui/ModernButton'
 import { formatDate, getTaskStatusColor, isOverdue, getDaysUntilDue, getInitials } from '@/lib/utils'

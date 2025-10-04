@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react'
-import { Task } from '@/types'
 import { ModernCard } from '@/components/ui/ModernCard'
 import { ModernButton } from '@/components/ui/ModernButton'
 import { CheckCircle, Clock, AlertCircle, Edit, Trash2 } from 'lucide-react'
