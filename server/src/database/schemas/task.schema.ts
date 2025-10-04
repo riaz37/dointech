@@ -13,13 +13,18 @@ export class Task {
   @Prop({ required: true })
   description: string;
 
-  @Prop({ required: true, enum: TaskStatus, default: TaskStatus.PENDING })
+  @Prop({ 
+    type: String, 
+    enum: Object.values(TaskStatus), 
+    required: true, 
+    default: TaskStatus.PENDING 
+  })
   status: TaskStatus;
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   assignedUser: User;
 
-  @Prop({ required: true })
+  @Prop({ type: Date, required: true })
   dueDate: Date;
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
